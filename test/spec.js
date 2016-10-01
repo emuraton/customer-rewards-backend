@@ -1,5 +1,54 @@
 var request = require('supertest');
 
+const stubLondonResponse =`
+  {
+    "channelsPackages":
+    [
+      {
+        "category": "sports",
+        "channels": [
+          {
+            "id": "arsenal-tv-london",
+            "name": "Arsenal TV"
+          },
+          {
+            "id": "chelsea-tv-london",
+            "name": "Chelsea TV"
+          }
+        ]
+      },
+      {
+        "category": "news",
+        "channels": [
+          {
+            "id": "sky-news-news",
+            "category": "news",
+            "name": "Sky News"
+          },
+          {
+            "id": "sky-sports-news-news",
+            "name": "Sky Sports News"
+          }
+        ]
+      },
+      {
+        "category": "basket",
+        "channels": [
+          {
+            "id": "arsenal-tv-basket",
+            "location": "london",
+            "name": "Arsenal TV"
+          },
+          {
+            "id": "sky-sports-basket",
+            "name": "Sky Sports News"
+          }
+        ]
+      }
+    ]
+  }
+`;
+
 describe('loading express', function () {
   var server;
   beforeEach(function () {
@@ -23,12 +72,10 @@ describe('loading express', function () {
     request(server)
       .post('/customer/location')
       .send(customer)
-      .expect(200, {
-        location: 'NOT_FOUND',
-      }, done);
+      .expect(200, {}, done);
   });
 
-  it('POST /customer/location : customer without location', function (done) {
+  it('POST /customer/location : not a customer id', function (done) {
     var customer = {'customerId': 'NOT_AN_ID'};
     request(server)
       .post('/customer/location')
@@ -36,5 +83,14 @@ describe('loading express', function () {
       .expect(200, {
         location: 'NOT_FOUND',
       }, done);
+  });
+
+
+  it('POST /channels/packages : channels for london', function (done) {
+    var customerLocation = {'customerLocation': 'LONDON'};
+    request(server)
+      .post('/channels/packages')
+      .send(customerLocation)
+      .expect(200, JSON.parse(stubLondonResponse), done);
   });
 });

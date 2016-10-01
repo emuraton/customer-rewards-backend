@@ -5,8 +5,8 @@ import cors from 'cors';
 import winston from 'winston';
 
 /** STUB DATA FILES **/
-import customersJSON from '../stub/data/customers.json'
-import channelsPackagesJSON from '../stub/data/channelsPackages.json'
+import customersJSON from '../stub/data/customers.json';
+import channelsPackagesJSON from '../stub/data/channelsPackages.json';
 
 const app = express();
 
@@ -40,7 +40,7 @@ app.post('/customer/location', function (req, res) {
     res.json(customersJSON[customerId]);
   } else {
     logger.error('Error finding location of customer: ', customerId);
-    res.json({customerId: 'NOT_FOUND'});
+    res.json({'location': 'NOT_FOUND'});
   }
 });
 
