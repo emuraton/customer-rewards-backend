@@ -1,0 +1,49 @@
+{
+  "london": {
+    "channels": [
+      {
+        "id": "arsenal-tv-london",
+        "category": "sports",
+        "name": "Arsenal TV"
+      },
+      {
+        "id": "chelsea-tv-london",
+        "category": "sports",
+        "name": "Chelsea TV"
+      },
+      {
+        "id": "arsenal-tv-basket",
+        "location": "london",
+        "name": "Arsenal TV"
+      }
+    ]
+  },
+  "liverpool": {
+    "channels": [
+      {
+        "id": "liverpool-tv-liverpool",
+        "category": "sports",
+        "name": "Liverpool TV"
+      }
+    ]
+  },
+  "*": {
+    "channels": [
+      {
+        "id": "sky-news-news",
+        "category": "news",
+        "name": "Sky News"
+      },
+      {
+        "id": "sky-sports-news-news",
+        "category": "news",
+        "name": "Sky Sports News"
+      },
+      {
+        "id": "sky-sports-basket",
+        "location": "*",
+        "name": "Sky Sports News"
+      }
+    ]
+  }
+}

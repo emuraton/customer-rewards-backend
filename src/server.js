@@ -6,6 +6,7 @@ import winston from 'winston';
 
 /** STUB DATA FILES **/
 import customersJSON from '../stub/data/customers.json'
+import channelsPackagesJSON from '../stub/data/channelsPackages.json'
 
 const app = express();
 
@@ -35,13 +36,71 @@ app.use(function(req, res, next){
   */
 app.post('/customer/location', function (req, res) {
   let customerId = JSON.parse(req.rawBody).customerId;
-
   if(customersJSON[customerId]) {
     res.json(customersJSON[customerId]);
   } else {
     logger.error('Error finding location of customer: ', customerId);
     res.json({customerId: 'NOT_FOUND'});
   }
+});
+
+/**
+  * Get channels package.
+  */
+app.post('/channels/packages', function (req, res) {
+  /*
+   * Code to return the right package.
+   */
+  const stubLondonResponse =`
+    {
+      "channelsPackages":
+      [
+        {
+          "category": "sports",
+          "channels": [
+            {
+              "id": "arsenal-tv-london",
+              "name": "Arsenal TV"
+            },
+            {
+              "id": "chelsea-tv-london",
+              "name": "Chelsea TV"
+            }
+          ]
+        },
+        {
+          "category": "news",
+          "channels": [
+            {
+              "id": "sky-news-news",
+              "category": "news",
+              "name": "Sky News"
+            },
+            {
+              "id": "sky-sports-news-news",
+              "name": "Sky Sports News"
+            }
+          ]
+        },
+        {
+          "category": "basket",
+          "channels": [
+            {
+              "id": "arsenal-tv-basket",
+              "location": "london",
+              "name": "Arsenal TV"
+            },
+            {
+              "id": "sky-sports-basket",
+              "name": "Sky Sports News"
+            }
+          ]
+        }
+      ]
+    }
+  `;
+
+  res.json(JSON.parse(stubLondonResponse));
 });
 
 const server = app.listen(3001, () => {
