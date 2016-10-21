@@ -1,5 +1,7 @@
 import request from 'supertest';
 import should from 'should';
+import { getEligibilityService } from '../src/utils';
+import { INVALID_ACCOUNT_NUMBER } from '../src/constants';
 
 describe('customer rewards', () => {
   let server;
@@ -46,5 +48,23 @@ describe('customer rewards', () => {
         res.body[0].reward.should.be.empty;
         done();
       });
+  });
+
+  it('getEligibilityService should return true', done => {
+    const trueEligible = getEligibilityService('123456');
+    trueEligible.isEligible.should.equal(true);
+    done();
+  });
+
+  it('getEligibilityService should return false', done => {
+    const falseEligible = getEligibilityService('123457');
+    falseEligible.isEligible.should.equal(false);
+    done();
+  });
+
+  it('getEligibilityService should return an error', done => {
+    const errorEligible = getEligibilityService('123458');
+    errorEligible.error.should.equal("TECHNICAL_ERROR_EXCEPTION");
+    done();
   });
 });
