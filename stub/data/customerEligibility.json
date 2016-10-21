@@ -1,0 +1,5 @@
+{
+  "123456": {"isEligible": true},
+  "123457": {"isEligible": false},
+  "123458": {"error": "TECHNICAL_ERROR_EXCEPTION"}
+}

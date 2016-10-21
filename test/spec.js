@@ -1,96 +1,50 @@
-var request = require('supertest');
+import request from 'supertest';
+import should from 'should';
 
-const stubLondonResponse =`
-  {
-    "channelsPackages":
-    [
-      {
-        "category": "sports",
-        "channels": [
-          {
-            "id": "arsenal-tv-london",
-            "name": "Arsenal TV"
-          },
-          {
-            "id": "chelsea-tv-london",
-            "name": "Chelsea TV"
-          }
-        ]
-      },
-      {
-        "category": "news",
-        "channels": [
-          {
-            "id": "sky-news-news",
-            "category": "news",
-            "name": "Sky News"
-          },
-          {
-            "id": "sky-sports-news-news",
-            "name": "Sky Sports News"
-          }
-        ]
-      },
-      {
-        "category": "basket",
-        "channels": [
-          {
-            "id": "arsenal-tv-basket",
-            "location": "london",
-            "name": "Arsenal TV"
-          },
-          {
-            "id": "sky-sports-basket",
-            "name": "Sky Sports News"
-          }
-        ]
-      }
-    ]
-  }
-`;
-
-describe('loading express', function () {
-  var server;
-  beforeEach(function () {
+describe('customer rewards', () => {
+  let server;
+  beforeEach(() => {
     server = require('../src/server');
   });
-  afterEach(function () {
+  afterEach(() => {
     server.close();
   });
-  it('POST /customer/location responds with location:LONDON', function (done) {
-    var customer = {'customerId': '123456'};
+
+  const channelSports = {'id': '1', 'name': 'SPORTS'};
+  const channelKids = {'id': '2', 'name': 'KIDS'};
+  const rewardSports = {
+    'code': 'CHAMPIONS_LEAGUE_FINAL_TICKET',
+  };
+
+  it("POST /customer/rewards responds with one reward ", done => {
+    const params = {
+      accountNumber: '123456',
+      channelsSub: [channelSports]
+    };
     request(server)
-      .post('/customer/location')
-      .send(customer)
-      .expect(200, {
-        location: 'LONDON',
-      }, done);
+      .post('/customer/rewards')
+      .send(params)
+      .expect(200)
+      .end((err, res) =>{
+        res.body[0].channel.id.should.equal(channelSports.id);
+        res.body[0].channel.name.should.equal(channelSports.name);
+        res.body[0].reward.code.should.equal(rewardSports.code);
+        done();
+      });
   });
 
-  it('POST /customer/location : customer without location', function (done) {
-    var customer = {'customerId': '123458'};
+  it('POST /customer/rewards responds with an empty reward ', done => {
+    const params = {
+      accountNumber: '123456',
+      channelsSub: [channelKids]
+    };
     request(server)
-      .post('/customer/location')
-      .send(customer)
-      .expect(200, {}, done);
-  });
-
-  it('POST /customer/location : not a customer id', function (done) {
-    var customer = {'customerId': 'NOT_AN_ID'};
-    request(server)
-      .post('/customer/location')
-      .send(customer)
-      .expect(200, {
-        location: 'NOT_FOUND',
-      }, done);
-  });
-
-
-  it('POST /channels/packages : channels for london', function (done) {
-    var customerLocation = {'customerLocation': 'LONDON'};
-    request(server)
-      .post('/channels/packages')
-      .send(customerLocation)
-      .expect(200, JSON.parse(stubLondonResponse), done);
+      .post('/customer/rewards')
+      .send(params)
+      .expect(200)
+      .end((err, res) =>{
+        res.body[0].reward.should.be.empty;
+        done();
+      });
   });
 });

@@ -3,10 +3,11 @@ import helmet from 'helmet';
 import compression from 'compression';
 import cors from 'cors';
 import winston from 'winston';
+import { INVALID_ACCOUNT_NUMBER } from './constants.js';
 
 /** STUB DATA FILES **/
-import customersJSON from '../stub/data/customers.json';
-import channelsPackagesJSON from '../stub/data/channelsPackages.json';
+import customerEligibilityJSON from '../stub/data/customerEligibility.json';
+import rewardsJSON from '../stub/data/rewards.json';
 
 const app = express();
 
@@ -30,78 +31,43 @@ app.use(function(req, res, next){
   })
 });
 
-
-/**
-  * Find the location of the customer by his ID. If the id not know, answer 'NOT_FOUND'.
+//TODO make it a get request
+/** Route to get rewards of a customer
+  * Body request {String} accountNumber, {Array} channelsSub
   */
-app.post('/customer/location', function (req, res) {
-  let customerId = JSON.parse(req.rawBody).customerId;
-  if(customersJSON[customerId]) {
-    res.json(customersJSON[customerId]);
+app.post('/customer/rewards', function (req, res){
+  const params = JSON.parse(req.rawBody);
+  const accountNumber = params.accountNumber; // Customer account number
+  const channelsSub = params.channelsSub; //Array of Map of channels subscriptions
+
+  const rewards =  getEligibilityService(accountNumber);
+  if(!rewards.error && rewards.isEligible){
+    res.json(getCustomeRewards(channelsSub));
   } else {
-    logger.error('Error finding location of customer: ', customerId);
-    res.json({'location': 'NOT_FOUND'});
+    res.json(JSON.parse([]));
   }
 });
 
-/**
-  * Get channels package.
+/** Get rewards corresponding to channels entry
+  * @param {Array} channels : Customer channels
   */
-app.post('/channels/packages', function (req, res) {
-  /*
-   * Code to return the right package.
-   */
-  const stubLondonResponse =`
-    {
-      "channelsPackages":
-      [
-        {
-          "category": "sports",
-          "channels": [
-            {
-              "id": "arsenal-tv-london",
-              "name": "Arsenal TV"
-            },
-            {
-              "id": "chelsea-tv-london",
-              "name": "Chelsea TV"
-            }
-          ]
-        },
-        {
-          "category": "news",
-          "channels": [
-            {
-              "id": "sky-news-news",
-              "category": "news",
-              "name": "Sky News"
-            },
-            {
-              "id": "sky-sports-news-news",
-              "name": "Sky Sports News"
-            }
-          ]
-        },
-        {
-          "category": "basket",
-          "channels": [
-            {
-              "id": "arsenal-tv-basket",
-              "location": "london",
-              "name": "Arsenal TV"
-            },
-            {
-              "id": "sky-sports-basket",
-              "name": "Sky Sports News"
-            }
-          ]
-        }
-      ]
-    }
-  `;
+function getCustomeRewards(channels){
+  let rewardsByChannels = [];
+  channels.map(channel => {
+    const rewardItem = typeof rewardsJSON[channel.name] === undefined ? {} : rewardsJSON[channel.name];
+    rewardsByChannels.push({'channel': channel, 'reward': rewardItem});
+  });
+  return rewardsByChannels;
+}
 
-  res.json(JSON.parse(stubLondonResponse));
-});
+/** Is customer eligible to get rewards
+  * @param {String} accountNumber
+  */
+function getEligibilityService(accountNumber){
+  let isEligible = customerEligibilityJSON[accountNumber];
+  if(typeof isEligible === undefined) isEligible = {'error': INVALID_ACCOUNT_NUMBER};
+  return isEligible;
+}
 
 const server = app.listen(3001, () => {
   logger.info('Listening at http://localhost:%s 🔥', 3001);
