@@ -1,6 +1,6 @@
 import request from 'supertest';
 import should from 'should';
-import { getEligibilityService } from '../src/utils';
+import { getCustomerRewards, getEligibilityService } from '../src/utils';
 import { INVALID_ACCOUNT_NUMBER } from '../src/constants';
 
 describe('customer rewards', () => {
@@ -65,6 +65,19 @@ describe('customer rewards', () => {
   it('getEligibilityService should return an error', done => {
     const errorEligible = getEligibilityService('123458');
     errorEligible.error.should.equal("TECHNICAL_ERROR_EXCEPTION");
+    done();
+  });
+
+  it('getCustomerRewards should return reward of "SPORTS"', done => {
+    const rewards = getCustomerRewards([channelSports]);
+    rewards[0].channel.id.should.equal(channelSports.id);
+    rewards[0].reward.code.should.equal(rewardSports.code);
+    done();
+  });
+
+  it('getCustomerRewards should return an empty object', done => {
+    const rewards = getCustomerRewards(['NOT_A_CHANNEL']);
+    rewards[0].should.be.empty;
     done();
   });
 });

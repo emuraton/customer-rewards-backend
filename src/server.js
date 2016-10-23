@@ -29,7 +29,7 @@ app.use(function(req, res, next){
 });
 
 //TODO make it a get request
-/** Route to get rewards of a customer
+/** Get rewards of a customer, returns an empty array if customer is not eligible.
   * Body request {String} accountNumber, {Array} channelsSub
   */
 app.post('/customer/rewards', function (req, res){
@@ -37,8 +37,8 @@ app.post('/customer/rewards', function (req, res){
   const accountNumber = params.accountNumber; // Customer account number
   const channelsSub = params.channelsSub; //Array of Map of channels subscriptions
 
-  const rewards =  getEligibilityService(accountNumber);
-  if(!rewards.error && rewards.isEligible){
+  const eligibility =  getEligibilityService(accountNumber);
+  if(!eligibility.error && eligibility.isEligible){
     res.json(getCustomerRewards(channelsSub));
   } else {
     res.json(JSON.parse([]));
